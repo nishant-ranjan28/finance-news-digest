@@ -9,6 +9,10 @@ import { getArticlesByDate } from '@/lib/db'
 import { NextRequest } from 'next/server'
 
 describe('GET /api/articles', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
   it('returns articles for today', async () => {
     ;(getArticlesByDate as jest.Mock).mockResolvedValue([
       { id: '1', title: 'Test', url: 'https://example.com' },

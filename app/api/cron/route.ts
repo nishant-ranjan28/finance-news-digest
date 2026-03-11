@@ -1,3 +1,4 @@
+import { timingSafeEqual as cryptoTimingSafeEqual } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchFinanceNews } from '@/lib/tavily'
 import { summarizeArticle } from '@/lib/summarize'
@@ -12,7 +13,7 @@ function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false
   const bufA = Buffer.from(a)
   const bufB = Buffer.from(b)
-  return require('crypto').timingSafeEqual(bufA, bufB)
+  return cryptoTimingSafeEqual(bufA, bufB)
 }
 
 export async function GET(req: NextRequest) {
