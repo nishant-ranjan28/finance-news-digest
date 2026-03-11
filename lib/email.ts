@@ -68,7 +68,7 @@ export async function sendDigestEmail(
   })
   const html = buildEmailHtml(articles, date)
 
-  await Promise.allSettled(
+  const results = await Promise.allSettled(
     subscriberEmails.map((email) =>
       resend.emails.send({
         from: 'Finance News Digest <onboarding@resend.dev>',
@@ -78,4 +78,9 @@ export async function sendDigestEmail(
       })
     )
   )
+
+  const failed = results.filter((r) => r.status === 'rejected')
+  if (failed.length > 0) {
+    console.error(`Failed to send ${failed.length}/${subscriberEmails.length} emails`)
+  }
 }

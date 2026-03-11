@@ -36,6 +36,13 @@ describe('sendDigestEmail', () => {
 
     await sendDigestEmail(mockArticles, ['a@b.com', 'c@d.com'])
     expect(mockSend).toHaveBeenCalledTimes(2)
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: 'Finance News Digest <onboarding@resend.dev>',
+        to: 'a@b.com',
+        subject: expect.stringContaining('Finance News Digest'),
+      })
+    )
   })
 
   it('does nothing when no subscribers', async () => {
