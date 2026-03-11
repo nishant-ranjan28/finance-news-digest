@@ -22,11 +22,19 @@ Article Title: ${title}
 Article Content: ${content}
 `.trim()
 
+const VALID_CATEGORIES: SummarizeResult['category'][] = ['Markets', 'Macro', 'Crypto', 'Earnings', 'Policy']
+
 function parseResult(text: string): SummarizeResult {
   const cleaned = text.replace(/\`\`\`json\n?/g, '').replace(/\`\`\`\n?/g, '').trim()
   const parsed = JSON.parse(cleaned)
   if (!parsed.summary || !parsed.category || typeof parsed.importance_score !== 'number') {
     throw new Error('Invalid AI response shape')
+  }
+  if (!VALID_CATEGORIES.includes(parsed.category)) {
+    throw new Error(`Invalid category: "${parsed.category}". Must be one of: ${VALID_CATEGORIES.join(', ')}`)
+  }
+  if (parsed.importance_score < 1 || parsed.importance_score > 10) {
+    throw new Error(`Invalid importance_score: ${parsed.importance_score}. Must be between 1 and 10`)
   }
   return parsed as SummarizeResult
 }
