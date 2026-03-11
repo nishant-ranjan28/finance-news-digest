@@ -18,7 +18,7 @@ export default function ArticleCard({ article }: { article: Article }) {
           {article.category}
         </span>
         <span className="text-xs text-gray-400">{article.source}</span>
-        {article.importance_score && (
+        {article.importance_score != null && (
           <span className="ml-auto text-xs text-gray-400">
             ⭐ {article.importance_score}/10
           </span>
