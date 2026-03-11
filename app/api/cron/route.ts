@@ -1,4 +1,4 @@
-import { timingSafeEqual as cryptoTimingSafeEqual } from 'crypto'
+import { createHmac, timingSafeEqual } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchFinanceNews } from '@/lib/tavily'
 import { summarizeArticle } from '@/lib/summarize'
@@ -9,18 +9,19 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false
-  const bufA = Buffer.from(a)
-  const bufB = Buffer.from(b)
-  return cryptoTimingSafeEqual(bufA, bufB)
+function safeCompare(a: string, b: string): boolean {
+  // Compare HMAC digests - always 32 bytes, prevents length oracle attack
+  const key = Buffer.from('finance-news-digest-cron-compare')
+  const hmacA = createHmac('sha256', key).update(a).digest()
+  const hmacB = createHmac('sha256', key).update(b).digest()
+  return timingSafeEqual(hmacA, hmacB)
 }
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
 
-  if (!cronSecret || !authHeader || !timingSafeEqual(authHeader, `Bearer ${cronSecret}`)) {
+  if (!cronSecret || !authHeader || !safeCompare(authHeader, `Bearer ${cronSecret}`)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
